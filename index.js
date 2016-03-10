@@ -4,8 +4,6 @@ const shell = require('electron').shell;
 const got = require('got');
 const _ = require('lodash');
 
-const ICON = 'font:fa fa-youtube';
-
 const QUERY_RE = /\s+(.+)/i;
 const RESULT_PREFIX_RE = /^google\.sbox\.p50 && google\.sbox\.p50\(/i
 const RESULT_POSTFIX_RE = /\)$(\s)*/i
@@ -27,18 +25,17 @@ function* queryYoutube(query) {
 
 class YoutubePlugin {
 
-  constructor(args) {}
-
-  get description() {
-    return {
-      title: 'youtube plugin',
-      desc: 'type /yt something',
-      icon: ICON
-    };
+  constructor(args) {
+    this.toast = args.toast;
   }
 
-  get prefix() {
-    return '/yt ';
+  get config() {
+    return {
+      name: 'youtube plugin',
+      help: 'type /yt something',
+      icon: 'font:fa fa-youtube',
+      prefix: '/yt'
+    };
   }
 
   * startup() {}
@@ -49,11 +46,10 @@ class YoutubePlugin {
       return;
       
     reply([{
-      id: 'open',
-      payload: query_trim,
+      id: query_trim,
+      payload: 'open',
       title: query_trim,
-      desc: 'Search Youtube.com',
-      icon: ICON
+      desc: 'Search Youtube.com'
     }]);
       
     let results = yield* queryYoutube(query_trim);
@@ -61,20 +57,17 @@ class YoutubePlugin {
     
     return _.take(results, 5).map((x) => {
       return {
-        id: 'open',
-        payload: x,
+        id: x,
+        payload: 'open',
         title: x,
-        desc: 'Search Youtube.com',
-        icon: ICON
+        desc: 'Search Youtube.com'
       };
     });
   }
 
   * execute(id, payload) {
-    if (id !== 'open' && id !== 'temp') {
-      return {
-        message: 'enter text'
-      };
+    if (payload !== 'open') {
+      return this.toast('enter keyword');
     }
     const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(payload)}&page=&utm_source=opensearch`;
     shell.openExternal(url);
