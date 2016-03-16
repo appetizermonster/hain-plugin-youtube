@@ -3,10 +3,11 @@
 const shell = require('electron').shell;
 const got = require('got');
 const _ = require('lodash');
+const co = require('co');
 
-const QUERY_RE = /\s+(.+)/i;
 const RESULT_PREFIX_RE = /^google\.sbox\.p50 && google\.sbox\.p50\(/i;
 const RESULT_POSTFIX_RE = /\)$(\s)*/i;
+const DESC = 'Search Youtube.com';
 
 function* queryYoutube(query) {
   const query_enc = encodeURIComponent(query);
@@ -23,24 +24,9 @@ function* queryYoutube(query) {
   return null;
 }
 
-class YoutubePlugin {
+module.exports = (context) => {
 
-  constructor(args) {
-    this.toast = args.toast;
-  }
-
-  get config() {
-    return {
-      name: 'youtube plugin',
-      help: 'type /yt something',
-      icon: 'font:fa fa-youtube',
-      prefix: '/yt'
-    };
-  }
-
-  * startup() { }
-
-  * search(query, reply) {
+  function* search(query, reply) {
     const query_trim = query.trim();
     if (query_trim.length === 0)
       return;
@@ -49,7 +35,7 @@ class YoutubePlugin {
       id: query_trim,
       payload: 'open',
       title: query_trim,
-      desc: 'Search Youtube.com'
+      desc: DESC
     }]);
 
     let results = yield* queryYoutube(query_trim);
@@ -60,19 +46,20 @@ class YoutubePlugin {
         id: x,
         payload: 'open',
         title: x,
-        desc: 'Search Youtube.com'
+        desc: DESC
       };
     });
   }
 
-  * execute(id, payload) {
-    if (payload !== 'open') {
-      return this.toast('enter keyword');
-    }
+  function* execute(id, payload) {
+    if (payload !== 'open')
+      return;
     const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(id)}&page=&utm_source=opensearch`;
     shell.openExternal(url);
   }
 
-}
-
-module.exports = YoutubePlugin;
+  return {
+    search: co.wrap(search),
+    execute: co.wrap(execute)
+  };
+};

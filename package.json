@@ -1,11 +1,9 @@
 {
   "name": "hain-plugin-youtube",
-  "version": "0.0.3",
-  "description": "hain plugin for searching youtube.com",
+  "version": "0.0.4",
+  "description": "hain plugin to search youtube.com",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/appetizermonster/hain-plugin-youtube.git"
@@ -17,7 +15,13 @@
   },
   "homepage": "https://github.com/appetizermonster/hain-plugin-youtube#readme",
   "dependencies": {
+    "co": "^4.6.0",
     "got": "^6.2.0",
     "lodash": "^4.6.1"
+  },
+  "hain": {
+    "prefix": "/yt",
+    "usage": "/yt something",
+    "icon": "#fa fa-youtube"
   }
 }
