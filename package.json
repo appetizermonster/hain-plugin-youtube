@@ -1,6 +1,6 @@
 {
   "name": "hain-plugin-youtube",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "hain plugin to search youtube.com",
   "main": "index.js",
   "scripts": {},
@@ -22,6 +22,7 @@
   "hain": {
     "prefix": "/yt",
     "usage": "/yt something",
-    "icon": "#fa fa-youtube"
+    "icon": "#fa fa-youtube",
+    "redirect": "/yt "
   }
 }

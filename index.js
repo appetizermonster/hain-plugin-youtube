@@ -1,6 +1,5 @@
 'use strict';
 
-const shell = require('electron').shell;
 const got = require('got');
 const _ = require('lodash');
 const co = require('co');
@@ -25,23 +24,23 @@ function* queryYoutube(query) {
 }
 
 module.exports = (context) => {
+  const shell = context.shell;
 
-  function* search(query, reply) {
+  function* search(query, res) {
     const query_trim = query.trim();
     if (query_trim.length === 0)
       return;
 
-    reply([{
+    res.add({
       id: query_trim,
       payload: 'open',
       title: query_trim,
       desc: DESC
-    }]);
+    });
 
     let results = yield* queryYoutube(query_trim);
     results = _.reject(results, (x) => x === query_trim);
-
-    return _.take(results, 5).map((x) => {
+    results = _.take(results, 5).map((x) => {
       return {
         id: x,
         payload: 'open',
@@ -49,9 +48,10 @@ module.exports = (context) => {
         desc: DESC
       };
     });
+    res.add(results);
   }
 
-  function* execute(id, payload) {
+  function execute(id, payload) {
     if (payload !== 'open')
       return;
     const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(id)}&page=&utm_source=opensearch`;
@@ -60,6 +60,6 @@ module.exports = (context) => {
 
   return {
     search: co.wrap(search),
-    execute: co.wrap(execute)
+    execute
   };
 };
